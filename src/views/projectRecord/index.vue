@@ -24,10 +24,10 @@
       <el-col :span="16">
         <el-table
           ref="table"
-          @row-click="showRecordDetail"
           v-loading="crud.loading"
           :data="crud.data"
           style="width: 100%"
+          @row-click="showRecordDetail"
           @selection-change="crud.selectionChangeHandler"
         >
           <el-table-column prop="userNo" label="合作方编号" />
@@ -40,71 +40,66 @@
             label="操作"
             width="200px"
             align="center"
-          >
-          </el-table-column>
+          />
         </el-table>
         <!--分页组件-->
         <pagination />
       </el-col>
       <el-col :span="8">
-        <ProjectRecordDetail></ProjectRecordDetail>
+        <ProjectRecordDetail ref="recod" />
       </el-col>
     </el-row>
   </div>
 </template>
 
 <script>
-import crudServer from "@/api/projectRecord";
-import ProjectRecordDetail from "./projectRecordDetail";
+import crudServer from '@/api/projectRecord'
+import ProjectRecordDetail from './projectRecordDetail'
 
-import CRUD, { presenter, header, form, crud } from "@crud/crud";
-import rrOperation from "@crud/RR.operation";
-import crudOperation from "@crud/CRUD.operation";
-import udOperation from "@crud/UD.operation";
-import pagination from "@crud/Pagination";
-import DateRangePicker from "@/components/DateRangePicker";
+import CRUD, { presenter, header, form, crud } from '@crud/crud'
+import rrOperation from '@crud/RR.operation'
+import crudOperation from '@crud/CRUD.operation'
+import udOperation from '@crud/UD.operation'
+import pagination from '@crud/Pagination'
+import DateRangePicker from '@/components/DateRangePicker'
 const defaultForm = {
   username: null,
   realName: null,
   email: null,
   phone: null,
-  gender: null,
-};
+  gender: null
+}
 export default {
-  name: "Server",
+  name: 'Server',
   components: {
     pagination,
     crudOperation,
     rrOperation,
     udOperation,
     DateRangePicker,
-    ProjectRecordDetail,
+    ProjectRecordDetail
   },
   cruds() {
     return CRUD({
-      title: "访问记录",
-      url: "api/projectAccessRecord/statistics",
+      title: '访问记录',
+      url: 'api/projectAccessRecord/statistics',
       optShow: {
         add: false,
         edit: false,
         del: false,
         download: true,
-        reset: true,
+        reset: true
       },
-      sort: [""],
+      sort: [''],
       queryOnPresenterCreated: false,
       params: {},
-      crudMethod: { ...crudServer },
-    });
+      crudMethod: { ...crudServer }
+    })
   },
   created() {
-    this.crud.params.projectId = this.$route.query.projectId;
+    this.crud.params.projectId = this.$route.query.projectId
   },
   mixins: [presenter(), header(), form(defaultForm), crud()],
-  mounted() {
-    console.log(this.crud);
-    this.crud.toQuery();
-  },
   data() {
     return {
       accountList: [],
@@ -112,32 +107,37 @@ export default {
       loading: false,
       genderOptions: [
         {
-          value: "1",
-          label: "男",
+          value: '1',
+          label: '男'
         },
         {
-          value: "2",
-          label: "女",
-        },
+          value: '2',
+          label: '女'
+        }
       ],
       permission: {},
       rules: {
-        username: [{ required: true, message: "请输入名称", trigger: "blur" }],
-        realName: [{ required: true, message: "请输入真实姓名", trigger: "blur" }],
-        phone: [{ required: true, message: "请输入手机号", trigger: "blur" }],
-        email: [{ required: true, message: "请输入邮箱", trigger: "blur" }],
-        password: [{ required: true, message: "请输选择性别", trigger: "blur" }],
-        currentType: [{ required: true, message: "请选择", trigger: "blur" }],
-        gender: [{ required: true, message: "请选择", trigger: "blur" }],
-      },
-    };
+        username: [{ required: true, message: '请输入名称', trigger: 'blur' }],
+        realName: [{ required: true, message: '请输入真实姓名', trigger: 'blur' }],
+        phone: [{ required: true, message: '请输入手机号', trigger: 'blur' }],
+        email: [{ required: true, message: '请输入邮箱', trigger: 'blur' }],
+        password: [{ required: true, message: '请输选择性别', trigger: 'blur' }],
+        currentType: [{ required: true, message: '请选择', trigger: 'blur' }],
+        gender: [{ required: true, message: '请选择', trigger: 'blur' }]
+      }
+    }
+  },
+  mounted() {
+    console.log(this.crud)
+    this.crud.toQuery()
   },
   methods: {
     showRecordDetail(row) {
-      console.log(row);
-    },
-  },
-};
+      console.log(row)
+      this.$refs.recod.showRecordDetail(row)
+    }
+  }
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>

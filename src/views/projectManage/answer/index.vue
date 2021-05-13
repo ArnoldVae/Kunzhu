@@ -4,25 +4,25 @@
       <h2>{{ $route.query.projectInfo.title }}</h2>
     </div>
     <el-tabs v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane label="全部" name="all"></el-tab-pane>
-      <el-tab-pane label="待回复" name="noReplied"></el-tab-pane>
-      <el-tab-pane label="已回复" name="isReplied"></el-tab-pane>
+      <el-tab-pane label="全部" name="all" />
+      <el-tab-pane label="待回复" name="noReplied" />
+      <el-tab-pane label="已回复" name="isReplied" />
     </el-tabs>
     <div class="problem_content">
       <div class="problem_content_item">
-        <div class="problem_content_item_single" v-for="p in problems" :key="p.questionId">
+        <div v-for="p in problems" :key="p.questionId" class="problem_content_item_single">
           <el-row>
-            <el-col :span="6">{{ p.createBy.username }}<br />
-              {{ p.createBy.phone }}<br />
+            <el-col :span="6">{{ p.createBy.username }}<br>
+              {{ p.createBy.phone }}<br>
               {{ p.createBy.userNo }}
             </el-col>
             <el-col :span="6">
               <div class="questions">
-                {{ p.content }}<br />
+                {{ p.content }}<br>
                 {{ p.createTime }}
               </div>
-              <div class="answer" v-for="a in p.answers" :key="a.answerId">
-                <span style="color: red">{{ a.content }}</span><br />
+              <div v-for="a in p.answers" :key="a.answerId" class="answer">
+                <span style="color: red">{{ a.content }}</span><br>
                 {{ a.createTime }}
               </div>
             </el-col>
@@ -35,6 +35,18 @@
             </el-col>
           </el-row>
         </div>
+        <div class="block">
+
+          <el-pagination
+            :current-page.sync="currentPage"
+            :page-size="pageSize"
+            layout="total, prev, pager, next"
+
+            :total="partnerTotal"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+          />
+        </div>
       </div>
     </div>
     <el-dialog title="项目答疑" :visible.sync="ProblemVisible" width="60%">
@@ -46,7 +58,7 @@
             <ul>
               <li>
                 {{ selectQuerstion.createBy.realName }}【{{
-                selectQuerstion.createBy.username
+                  selectQuerstion.createBy.username
                 }}】
               </li>
               <li>{{ selectQuerstion.createBy.phone }}</li>
@@ -57,14 +69,20 @@
         </el-row>
       </div>
 
-      <hr style="border: 0.7px solid #ccc; margin-top: 20px" />
+      <hr style="border: 0.7px solid #ccc; margin-top: 20px">
       <div class="dia_alais">
         官方回复
-        <el-checkbox style="float: right" v-model="isRepublic">公开回复</el-checkbox>
+        <el-checkbox v-model="isRepublic" style="float: right">公开回复</el-checkbox>
       </div>
       <div class="dia_txt">
-        <el-input type="textarea" :rows="12" placeholder="请输入内容" v-model="answerDetail">
-        </el-input>
+        <el-input
+          v-model="answerDetail"
+          type="textarea"
+          maxlength="300"
+          show-word-limit
+          :rows="12"
+          placeholder="请输入内容"
+        />
       </div>
 
       <span slot="footer" class="dialog-footer">
@@ -76,94 +94,117 @@
 </template>
 
 <script>
-  import { searchQuestion, ToProjectAnswer } from "@/api/answer";
-  import { getToken } from "@/utils/auth";
-  import CRUD, { presenter, header, form, crud } from "@crud/crud";
-  import { mapGetters } from "vuex";
-  import moment from "moment";
-  export default {
-    name: "pro_answer",
-    components: {},
+import { searchQuestion, ToProjectAnswer } from '@/api/answer'
+import { getToken } from '@/utils/auth'
+import CRUD, { presenter, header, form, crud } from '@crud/crud'
+import { mapGetters } from 'vuex'
+import moment from 'moment'
+export default {
+  name: 'ProAnswer',
+  components: {},
 
-    created() { },
-    cruds() {
-      return CRUD({ title: "文件", url: "api/files", crudMethod: { ...crudFile } });
+  created() { },
+  cruds() {
+    return CRUD({ title: '文件', url: 'api/files', crudMethod: { ...crudFile }})
+  },
+  mixins: [crud()],
+  computed: {
+    ...mapGetters(['imagesUploadApi', 'annexUploadApi'])
+  },
+  data() {
+    return {
+      pageSize: 30,
+      currentPage: 0,
+      partnerTotal: 0,
+      activeName: 'all',
+      isReplied: '',
+      problems: [],
+      ProblemVisible: false,
+      isRepublic: true,
+      answerDetail: '',
+      headers: { Authorization: getToken() },
+      flieSelectedList: [],
+      uploadData: {
+        uploadType: '3'
+      },
+      selectQuerstion: {
+        createBy: {}
+      }
+    }
+  },
+  mounted() {
+    console.log(this.$route.query.projectInfo)
+    console.log()
+    if (this.$route.query.projectInfo.projectId) {
+      this.getProblems()
+    } else {
+      this.$router.push({
+        path: 'create'
+      })
+    }
+  },
+  methods: {
+    handleSizeChange(val) {
+      console.log(`每页 ${val} 条`)
     },
-    mixins: [crud()],
-    computed: {
-      ...mapGetters(["imagesUploadApi", "annexUploadApi"]),
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`)
+      getProblems({
+        sort: ['createTime,desc'],
+        projectId: this.$route.query.projectInfo.projectId,
+        page: this.currentPage - 1,
+        size: this.pageSize,
+        isReplied: this.isReplied
+      }).then((res) => {
+        console.log(res)
+        this.problems = res.content
+        this.partnerTotal = res.totalElements
+      })
     },
-    data() {
-      return {
-        activeName: "all",
-        isReplied:'',
-        problems: [],
-        ProblemVisible: false,
-        isRepublic: true,
-        answerDetail: "",
-        headers: { Authorization: getToken() },
-        flieSelectedList: [],
-        uploadData: {
-          uploadType: "3",
-        },
-        selectQuerstion: {
-          createBy: {},
-        },
-      };
+    answerSubmit() {
+      const _data = {
+        attachments: [],
+        content: this.answerDetail,
+        isPublic: this.isRepublic,
+        questionId: this.selectQuerstion.questionId
+      }
+
+      ToProjectAnswer(_data).then((res) => {
+        this.$message.success('回复成功!')
+
+        this.answerDetail = ''
+        this.ProblemVisible = false
+        this.getProblems()
+      })
     },
-    mounted() {
-      console.log(this.$route.query.projectInfo);
-      console.log()
-      if (this.$route.query.projectInfo.projectId) {
-        this.getProblems();
-      } else {
-        this.$router.push({
-          path: "create",
-        });
+    async getProblems() {
+      const _data = {
+        sort: ['createTime,desc'],
+        projectId: this.$route.query.projectInfo.projectId,
+        page: this.currentPage - 1,
+        size: this.pageSize,
+        isReplied: this.isReplied
+      }
+      const res = await searchQuestion(_data)
+      if (res) {
+        console.log(res)
+        this.problems = res.content
+        this.partnerTotal = res.totalElements
       }
     },
-    methods: {
-      answerSubmit() {
-        const _data = {
-          attachments: [],
-          content: this.answerDetail,
-          isPublic: this.isRepublic,
-          questionId: this.selectQuerstion.questionId,
-        };
-
-        ToProjectAnswer(_data).then((res) => {
-          this.$message.success("回复成功!");
-
-          this.answerDetail = "";
-          this.ProblemVisible = false;
-          this.getProblems();
-        });
-      },
-      async getProblems() {
-        const _data = {
-          sort:['createTime,desc'],
-          projectId: this.$route.query.projectInfo.projectId,
-          isReplied:this.isReplied
-        };
-        const res = await searchQuestion(_data);
-        if (res) {
-          console.log(res);
-          this.problems = res.content;
-        }
-      },
-      handleClick(tab, event) {
-        console.log(tab, event);
-        this.isReplied=this.activeName==='all'?'':this.activeName==='noReplied'?false:true
-        this.getProblems()
-      },
-      toAnswer(item) {
-        this.selectQuerstion = item;
-        console.log(this.selectQuerstion);
-        this.ProblemVisible = true;
-      },
-
+    handleClick(tab, event) {
+      console.log(tab, event)
+      this.isReplied = this.activeName === 'all' ? '' : this.activeName !== 'noReplied'
+      this.getProblems()
+    },
+    toAnswer(item) {
+      this.selectQuerstion = item
+      console.log(this.selectQuerstion)
+      this.ProblemVisible = true
     }
-  };
+
+  }
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
@@ -184,7 +225,7 @@
         .el-col {
           padding: 16px;
           border-right: 1px solid #ccc;
-
+          word-break: break-all;
           min-height: 200px;
         }
 

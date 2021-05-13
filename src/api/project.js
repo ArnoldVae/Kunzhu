@@ -2,11 +2,10 @@ import request from '@/utils/request'
 import qs from 'qs'
 
 export function add(data) {
-
   return request({
     url: 'api/projectInfo',
     method: 'post',
-    data:data
+    data: data
   })
 }
 
@@ -19,17 +18,22 @@ export function del(ids) {
 }
 
 export function edit(data) {
-
   return request({
     url: 'api/projectInfo',
     method: 'put',
-    data:data
+    data: data
   })
 }
 export function getProDetail(params) {
   return request({
-    url: 'api/projectInfo/detail'+ '?' + qs.stringify(params, { indices: false }),
-    method: 'get',
+    url: 'api/projectDraft/detail' + '?' + qs.stringify(params, { indices: false }),
+    method: 'get'
+  })
+}
+export function getProDetail2(params) {
+  return request({
+    url: 'api/projectInfo/detail' + '?' + qs.stringify(params, { indices: false }),
+    method: 'get'
   })
 }
 export function fileToDel(ids) {
@@ -69,8 +73,8 @@ export function confirmPartnerSubmit(params) {
 }
 export function getProjectFollow(params) {
   return request({
-    url: 'api/projectFeedback'+ '?' + qs.stringify(params, { indices: false }),
-    method: 'get',
+    url: 'api/projectFeedback' + '?' + qs.stringify(params, { indices: false }),
+    method: 'get'
   })
 }
 export function delFiles(params) {
@@ -82,10 +86,10 @@ export function delFiles(params) {
 }
 export function queryPartnerToJob(params) {
   return request({
-    url: '/api/projectPartner/queryPartner'+ '?' + qs.stringify(params, { indices: false }),
+    url: '/api/projectPartner/queryPartner' + '?' + qs.stringify(params, { indices: false }),
     method: 'get'
-  
+
   })
 }
 
-export default { add, edit, del,getProDetail,setHideOrShow,ToCloseApply}
+export default { add, edit, del, getProDetail, setHideOrShow, ToCloseApply }
