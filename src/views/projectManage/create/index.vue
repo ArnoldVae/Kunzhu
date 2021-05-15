@@ -77,8 +77,8 @@
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="全部活动" name="" />
         <el-tab-pane label="待发布" name="1" />
-        <el-tab-pane label="已发布" name="3" />
-        <el-tab-pane label="待跟踪" name="2" />
+        <el-tab-pane label="待申请" name="2" />
+        <el-tab-pane label="待跟踪" name="3" />
 
         <el-tab-pane label="已结束" name="4" />
       </el-tabs>
@@ -95,7 +95,7 @@
             <el-row>
               <el-col :span="7">总阅览次数：{{ d.readCount }}次</el-col>
               <el-col :span="7">已阅览人数：{{ d.readUserCount }}人</el-col>
-              <el-col :span="7">未阅览次数：{{ d.unreadUserCount }}人</el-col>
+              <el-col :span="7">未阅览人数：{{ d.unreadUserCount }}人</el-col>
               <el-col :span="3" class="point"><span @click="goRecord(d)">▶</span></el-col>
             </el-row>
             <el-row>
@@ -113,8 +113,10 @@
           <div class="query_content_item_content_item right">
             <el-popover placement="right" width="400" trigger="click">
               <ul class="item_ul">
-                <li @click="goProjectHide(d)"><span>隐藏申请</span></li>
-                <li @click="goProjectCloseApply(d)"><span>结束申请</span></li>
+                <li @click="goProjectHide(d)" v-if="d.isShow"><span>隐藏申请</span></li>
+                <li @click="goProjectHide(d)" v-if="!d.isShow"><span>显示申请</span></li>
+                <li @click="goProjectCloseApply(d)" v-if="d.status==='2'"><span>结束申请</span></li>
+                <li @click="goProjectOpenApply(d)" v-if="d.status==='3'"><span>开启申请</span></li>
                 <li @click="modifyProject(d)"><span>修改项目</span></li>
                 <li @click="removePro(d)"><span>删除项目</span></li>
               </ul>
@@ -146,7 +148,7 @@ import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/PROJECT.operation'
 import pagination from '@crud/Pagination'
 import DateRangePicker from '@/components/DateRangePicker'
-import { getProDetail, getProDetail2, del, setHideOrShow, ToCloseApply } from '@/api/project'
+import { getProDetail, getProDetail2, del, setHideOrShow, ToCloseApply,ToOpenApply } from '@/api/project'
 import ProjectDetail from '@/views/common/projectDetail.vue'
 import Add from './add'
 import Edit from './edit'
@@ -229,7 +231,6 @@ export default {
   methods: {
     // 跳转去
     goProFollow(item) {
-      debugger
       this.$router.push({
         path: '/follow',
         query: item
@@ -263,7 +264,7 @@ export default {
       const res = await setHideOrShow(item.projectId)
       this.$message({
         type: 'success',
-        message: '隐藏成功!'
+        message: '操作成功!'
       })
       this.crud.toQuery()
     },
@@ -292,6 +293,14 @@ export default {
       })
       this.crud.toQuery()
     },
+    async goOpenProApply(item) {
+      const res = await ToOpenApply(item.projectId)
+      this.$message({
+        type: 'success',
+        message: '操作成功!'
+      })
+      this.crud.toQuery()
+    },
     // 项目结束申请
     goProjectCloseApply(item) {
       this.$confirm('确定结束申请这个项目?', '提示', {
@@ -309,9 +318,26 @@ export default {
           })
         })
     },
+    // 项目结束申请
+    goProjectOpenApply(item) {
+      this.$confirm('确定开启申请这个项目?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          this.goOpenProApply(item)
+        })
+        .catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消操作'
+          })
+        })
+    },
     // 项目隐藏
     goProjectHide(item) {
-      this.$confirm('确定隐藏这个项目?', '提示', {
+      this.$confirm('确定隐藏或显示这个项目?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -407,6 +433,7 @@ export default {
     },
     closeMoodifyDia() {
       this.modifyFlag = false
+      this.crud.toQuery()
     },
     editItem(item) {
       this.modifyFlag = true

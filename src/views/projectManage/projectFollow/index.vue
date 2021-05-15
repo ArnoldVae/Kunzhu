@@ -1,12 +1,15 @@
 <template>
   <div class="projectFollow">
-    <h2>项目追踪</h2>
+    <h2 style="color: #606266; margin-left: 16px">项目追踪</h2>
     <el-row>
       <el-col :span="18">
-        <el-tabs type="border-card" v-model="tabTarget" @tab-click="test" tabPosition="left">
-      
+        <el-tabs
+          type="border-card"
+          v-model="tabTarget"
+          @tab-click="test"
+          tabPosition="left"
+        >
           <el-tab-pane
-          
             :key="item.partner.realName"
             v-for="(item, index) in tabOptions"
             :label="item.partner.realName"
@@ -45,7 +48,9 @@
           <div class="content_text">
             <el-input
               type="textarea"
-              :rows="14"
+              :rows="12"
+              maxlength="300"
+              show-word-limit
               placeholder="请输入内容"
               v-model="followDetail"
             >
@@ -59,10 +64,10 @@
               }}</el-checkbox>
             </el-checkbox-group>
           </div>
-          <div class="content_btn">
+          <div class="content_btn" v-if="projectStatus !== '4'">
             <el-button type="success" @click="submitFollow">发出跟踪询问</el-button>
           </div>
-          <div class="content_btn">
+          <div class="content_btn" v-if="projectStatus !== '4'">
             <el-button type="danger" @click="confirmPartner">确认最终合作方</el-button>
           </div>
         </div>
@@ -88,7 +93,7 @@ export default {
         path: "create",
       });
     } else {
-      this.projectStatus=this.$route.query.status
+      this.projectStatus = this.$route.query.status;
       this.tabOptions = this.$route.query.partners;
       this.tabTarget = this.tabOptions[0].partner.realName;
       this.selectId = this.tabOptions[0].partner.id;
@@ -103,7 +108,7 @@ export default {
   computed: {},
   data() {
     return {
-      projectStatus:"",
+      projectStatus: "",
       tabTarget: "",
       noticeTypeOptions: [
         {
@@ -125,18 +130,16 @@ export default {
   },
   mounted() {},
   methods: {
-    test(target){
-      console.log(target)
-      console.log(this.tabTarget)
-      console.log(this.tabOptions)
-      this.tabOptions.forEach(item => {
-        if(item.partner.realName===this.tabTarget){
-          
-          this.selectId=item.partner.id
+    test(target) {
+      console.log(target);
+      console.log(this.tabTarget);
+      console.log(this.tabOptions);
+      this.tabOptions.forEach((item) => {
+        if (item.partner.realName === this.tabTarget) {
+          this.selectId = item.partner.id;
         }
       });
-      this.getProjectFollowInfo()
-
+      this.getProjectFollowInfo();
     },
     async confirmPartnerGoSubmit() {
       const res = confirmPartnerSubmit({
@@ -172,7 +175,7 @@ export default {
     },
     async getProjectFollowInfo() {
       const res = await getProjectFollow({
-        sort:['createTime,desc'],
+        sort: ["createTime,desc"],
         partnerId: this.selectId,
         projectId: this.$route.query.projectId,
       });
@@ -213,11 +216,11 @@ export default {
     .follow_item {
       border-bottom: 1px dashed #ccc;
       .follow_item_title {
-        height: 50px;
+        min-height: 50px;
         line-height: 50px;
       }
       .follow_item_content {
-        height: 50px;
+        min-height: 50px;
         line-height: 50px;
         font-size: 14px;
       }

@@ -252,8 +252,8 @@ export default {
       return this.$confirm(`确定移除 ${file.name}？`)
     },
     initEditPage(item) {
+      this.flieSelectedList=[]
       this.active = 1
-      debugger
       const _this = this
       this.form.title = item.title
       this.fileList = item.attachments

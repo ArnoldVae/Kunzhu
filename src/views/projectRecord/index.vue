@@ -15,9 +15,13 @@
         <date-range-picker v-model="query.createTime" class="date-item" />
         <rrOperation />
       </div>
-      <crudOperation :permission="permission" />
+   
     </div>
     <!--表单组件-->
+    <div class="goBack">
+      <el-button style="float: right;" type="warning" @click="goback">返回</el-button>
+
+    </div>
 
     <!--表格渲染-->
     <el-row>
@@ -87,7 +91,7 @@ export default {
         add: false,
         edit: false,
         del: false,
-        download: true,
+        download: false,
         reset: true
       },
       sort: [''],
@@ -132,6 +136,9 @@ export default {
     this.crud.toQuery()
   },
   methods: {
+    goback(){
+      window.history.back()
+    },
     showRecordDetail(row) {
       console.log(row)
       this.$refs.recod.showRecordDetail(row)
@@ -141,7 +148,11 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
+.goBack{
+  height: 40px;
+}
 ::v-deep .el-input-number .el-input__inner {
   text-align: left;
+
 }
 </style>

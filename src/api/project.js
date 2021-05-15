@@ -57,6 +57,13 @@ export function ToCloseApply(id) {
     data: id
   })
 }
+export function ToOpenApply(id) {
+  return request({
+    url: 'api/projectInfo/openApply',
+    method: 'post',
+    data: id
+  })
+}
 export function setProjectFollow(params) {
   return request({
     url: 'api/projectFeedback',

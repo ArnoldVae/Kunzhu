@@ -393,7 +393,6 @@
         this.flieSelectedList.forEach((d) => {
           d.uploadTime = moment(new Date()).format("yyyy-MM-DD HH:mm:ss");
         });
-        debugger;
         this.selectedFileId = response.fileId;
         this.crud.notify("上传成功", CRUD.NOTIFICATION_TYPE.SUCCESS);
         // this.$refs.upload.clearFiles();
