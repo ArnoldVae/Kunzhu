@@ -36,12 +36,32 @@
       <Add ref="send" @changeToSubmit="changeToSubmit" @closeDia="closeDia" />
       <div slot="footer" class="dialog-footer">
         <el-button type="text" @click="closeDia">取消</el-button>
-        <el-button v-if="projectStep===2||projectStep===3" :loading="crud.status.cu === 2" type="primary" @click="goLast">上一步</el-button>
-        <el-button v-if="projectStep===1||projectStep===2" :loading="crud.status.cu === 2" type="primary" @click="testConnectServer">下一步
+        <el-button
+          v-if="projectStep === 2 || projectStep === 3"
+          :loading="crud.status.cu === 2"
+          type="primary"
+          @click="goLast"
+        >上一步</el-button>
+        <el-button
+          v-if="projectStep === 1 || projectStep === 2"
+          :loading="crud.status.cu === 2"
+          type="primary"
+          @click="testConnectServer"
+        >下一步
         </el-button>
-        <el-button v-if="projectStep===3" :loading="crud.status.cu === 2" type="primary" @click="submitNewProject('save')">保存
+        <el-button
+          v-if="projectStep === 3"
+          :loading="crud.status.cu === 2"
+          type="primary"
+          @click="submitNewProject('save')"
+        >保存
         </el-button>
-        <el-button v-if="projectStep===3" :loading="crud.status.cu === 2" type="success" @click="submitNewProject('Go')">保存并发布
+        <el-button
+          v-if="projectStep === 3"
+          :loading="crud.status.cu === 2"
+          type="success"
+          @click="submitNewProject('Go')"
+        >保存并发布
         </el-button>
       </div>
     </el-dialog>
@@ -62,13 +82,33 @@
       <div slot="footer" class="dialog-footer">
         <el-button type="text" @click="closeMoodifyDia">取消</el-button>
 
-        <el-button v-if="projectStep===2||projectStep===3" :loading="crud.status.cu === 2" type="primary" @click="goModifyLast">上一步</el-button>
-        <el-button v-if="projectStep===1||projectStep===2" :loading="crud.status.cu === 2" type="primary" @click="modifyNextStep">下一步
+        <el-button
+          v-if="projectStep === 2 || projectStep === 3"
+          :loading="crud.status.cu === 2"
+          type="primary"
+          @click="goModifyLast"
+        >上一步</el-button>
+        <el-button
+          v-if="projectStep === 1 || projectStep === 2"
+          :loading="crud.status.cu === 2"
+          type="primary"
+          @click="modifyNextStep"
+        >下一步
         </el-button>
 
-        <el-button v-if="projectStep===3" :loading="crud.status.cu === 2" type="primary" @click="submitModifyProject('save')">保存
+        <el-button
+          v-if="projectStep === 3"
+          :loading="crud.status.cu === 2"
+          type="primary"
+          @click="submitModifyProject('save')"
+        >保存
         </el-button>
-        <el-button v-if="projectStep===3" :loading="crud.status.cu === 2" type="success" @click="submitModifyProject('Go')">保存并发布
+        <el-button
+          v-if="projectStep === 3 && showSaveBtnFlag === '1'"
+          :loading="crud.status.cu === 2"
+          type="success"
+          @click="submitModifyProject('Go')"
+        >保存并发布
         </el-button>
       </div>
     </el-dialog>
@@ -99,30 +139,43 @@
               <el-col :span="3" class="point"><span @click="goRecord(d)">▶</span></el-col>
             </el-row>
             <el-row>
-              <el-col :span="7">已提问题：{{ d.questionCount }}个</el-col>
+              <el-col :span="7">总提问个数：{{ d.questionCount }}个</el-col>
               <el-col :span="7">已提问题：{{ d.questionUserCount }}人</el-col>
               <el-col :span="7">未解答问题：{{ d.noAnswerCount }}个</el-col>
               <el-col :span="3" class="point"><span @click="goAnser(d)">▶</span> </el-col>
             </el-row>
           </div>
           <div class="query_content_item_content_item center">
-            <div v-for="p in d.partners" :key="p.partner.id" class="single_partner" @click="goProFollow(d)">
+            <div
+              v-for="p in d.partners"
+              :key="p.partner.id"
+              :class="p.status === '3' ? 'single_partner_active' : 'single_partner'"
+              @click="goProFollow(d)"
+            >
               {{ p.partner.realName }}【{{ p.feedbackCount }}】
             </div>
           </div>
           <div class="query_content_item_content_item right">
             <el-popover placement="right" width="400" trigger="click">
               <ul class="item_ul">
-                <li @click="goProjectHide(d)" v-if="d.isShow"><span>隐藏申请</span></li>
-                <li @click="goProjectHide(d)" v-if="!d.isShow"><span>显示申请</span></li>
-                <li @click="goProjectCloseApply(d)" v-if="d.status==='2'"><span>结束申请</span></li>
-                <li @click="goProjectOpenApply(d)" v-if="d.status==='3'"><span>开启申请</span></li>
+                <li v-if="d.isShow" @click="goProjectHide(d)"><span>隐藏项目</span></li>
+                <li v-if="!d.isShow" @click="goProjectHide(d)"><span>显示项目</span></li>
+                <li v-if="d.status === '2'" @click="goProjectCloseApply(d)">
+                  <span>结束申请</span>
+                </li>
+                <li v-if="d.status === '3'" @click="goProjectOpenApply(d)">
+                  <span>开启申请</span>
+                </li>
                 <li @click="modifyProject(d)"><span>修改项目</span></li>
                 <li @click="removePro(d)"><span>删除项目</span></li>
               </ul>
               <el-button slot="reference">管理项目</el-button>
             </el-popover>
             <el-button v-if="d.draftId" @click="showDetail(d)">查看原始</el-button>
+            <el-button
+              v-if="d.status === '1'"
+              @click="modifyProject(d)"
+            >发布项目</el-button>
           </div>
         </div>
       </div>
@@ -148,7 +201,14 @@ import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/PROJECT.operation'
 import pagination from '@crud/Pagination'
 import DateRangePicker from '@/components/DateRangePicker'
-import { getProDetail, getProDetail2, del, setHideOrShow, ToCloseApply,ToOpenApply } from '@/api/project'
+import {
+  getProDetail,
+  getProDetail2,
+  del,
+  setHideOrShow,
+  ToCloseApply,
+  ToOpenApply
+} from '@/api/project'
 import ProjectDetail from '@/views/common/projectDetail.vue'
 import Add from './add'
 import Edit from './edit'
@@ -186,6 +246,7 @@ export default {
   data() {
     return {
       accountList: [],
+      showSaveBtnFlag: true,
       accountMap: {},
       loading: false,
       modifyFlag: false,
@@ -214,6 +275,9 @@ export default {
     }
   },
   computed: {
+    isNew: function() {
+      return this.crud.status.cu
+    },
     projectStep: function() {
       return this.$store.getters.projectStep
     }
@@ -222,6 +286,15 @@ export default {
     projectStep: {
       handler(val) {
         console.log(val + 'zhege')
+      }
+    },
+    isNew: {
+      handler(val) {
+        if (val) {
+          if (this.$refs.send) {
+            this.$refs.send.initPage()
+          }
+        }
       }
     }
   },
@@ -355,6 +428,7 @@ export default {
     // 项目修改
     async modifyProject(item) {
       console.log(item)
+      this.showSaveBtnFlag = item.status
       const that = this
       this.$store.dispatch('project/updateStep', 1)
       const res = await getProDetail2({
@@ -448,86 +522,106 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-  ::v-deep .el-input-number .el-input__inner {
-    text-align: left;
-  }
+::v-deep .el-input-number .el-input__inner {
+  text-align: left;
+}
 
-  .item_ul {
-    list-style-type: none;
-    text-align: center;
-    margin: 0;
-    padding: 0;
+.item_ul {
+  list-style-type: none;
+  text-align: center;
+  margin: 0;
+  padding: 0;
 
-    li {
-      cursor: pointer;
-      height: 40px;
-      line-height: 40px;
-    }
-
-    li:hover {
-      height: 40px;
-      line-height: 40px;
-      background: #f0ebeb;
-    }
-  }
-
-  .point {
+  li {
     cursor: pointer;
+    height: 40px;
+    line-height: 40px;
   }
 
-  .query_content_item {
-    height: 160px;
-    border: 1px solid #ccc;
+  li:hover {
+    height: 40px;
+    line-height: 40px;
+    background: #f0ebeb;
+  }
+}
+
+.point {
+  cursor: pointer;
+}
+
+.query_content_item {
+  min-height: 180px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  background: #e8e4e4;
+  margin-bottom: 10px;
+
+  .query_content_title {
+    font-size: 14px;
+  }
+
+  .query_content_item_content {
+    font-size: 14px;
+    margin-top: 4px;
+    height: 120px;
+    display: flex;
+    width: 100%;
+    background: #fff;
     padding: 10px;
-    background: #e8e4e4;
 
-    .query_content_title {
-      font-size: 14px;
+    .query_content_item_content_item {
+      padding: 16px;
+      height: 100%;
+      float: left;
+      width: 45%;
+      margin-right: 10px;
+      background: #f0ebeb;
+
+      .el-row {
+        margin-bottom: 20px;
+      }
     }
 
-    .query_content_item_content {
-      font-size: 14px;
-      margin-top: 4px;
-      height: 100px;
-      width: 100%;
-      background: #fff;
-      padding: 10px;
+    .left {
+      width: 45%;
+    }
 
-      .query_content_item_content_item {
-        padding: 16px;
-        height: 100%;
+    .center {
+      width: 30%;
+
+      .single_partner {
+        padding: 4px 8px;
+        background: #fff;
         float: left;
-        width: 45%;
-        margin-right: 10px;
-        background: #f0ebeb;
-
-        .el-row {
-          margin-bottom: 10px;
-        }
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        margin: 0 16px;
+        cursor: pointer;
+        margin-bottom: 4px;
       }
-
-      .left {
-        width: 45%;
+      .single_partner_active {
+        padding: 4px 8px;
+        background: #fff;
+        color: forestgreen;
+        float: left;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        margin: 0 16px;
+        cursor: pointer;
+        margin-bottom: 4px;
       }
+    }
 
-      .center {
-        width: 30%;
-
-        .single_partner {
-          padding: 4px 8px;
-          background: #fff;
-          float: left;
-          border: 1px solid #ccc;
-          border-radius: 3px;
-          margin: 0 16px;
-          cursor: pointer;
-          margin-bottom:4px;
-        }
+    .right {
+      width: 23%;
+      line-height: 36px;
+      buttin {
+        margin-left: 0;
       }
-
-      .right {
-        width: 18%;
+      .el-button + .el-button {
+        margin-left: 0;
       }
     }
   }
+}
 </style>

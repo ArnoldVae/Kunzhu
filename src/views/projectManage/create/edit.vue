@@ -252,7 +252,7 @@ export default {
       return this.$confirm(`确定移除 ${file.name}？`)
     },
     initEditPage(item) {
-      this.flieSelectedList=[]
+      this.flieSelectedList = []
       this.active = 1
       const _this = this
       this.form.title = item.title
@@ -448,7 +448,7 @@ export default {
           _data.content = this.form.content || this.selectdRow.content
           _data.projectId = this.selectdRow.projectId
           console.log(_data)
-          _data.status = target === 'Go' ? '2' : '1'
+          _data.status = target === 'Go' ? '2' : this.selectdRow.status
           this.loading = true
           edit(_data)
             .then((res) => {

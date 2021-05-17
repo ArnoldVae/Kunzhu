@@ -1,33 +1,39 @@
 <template>
   <div class="projectFollow">
-    <h2 style="color: #606266; margin-left: 16px">项目追踪</h2>
+    <div class="title" style="padding: 20px 0">
+      <span style="color: #606266; margin-left: 16px; font-size: 24px">项目追踪</span>
+      <el-button
+        type="warning"
+        style="float: right; margin-right: 20px"
+        @click="goback"
+      >返回</el-button>
+    </div>
+
     <el-row>
       <el-col :span="18">
         <el-tabs
-          type="border-card"
           v-model="tabTarget"
+          type="border-card"
+          tab-position="left"
           @tab-click="test"
-          tabPosition="left"
         >
           <el-tab-pane
-            :key="item.partner.realName"
             v-for="(item, index) in tabOptions"
+            :key="item.partner.realName"
             :label="item.partner.realName"
             :name="item.partner.realName"
           >
             <div class="follow_main">
-              <div class="follow_item" v-for="f in followOptions" :key="f.feedbackId">
+              <div v-for="f in followOptions" :key="f.feedbackId" class="follow_item">
                 <div class="follow_item_title">
                   <span
                     v-if="f.accessType === '2'"
                     style="color: rgb(19, 136, 247); margin-right: 20px"
-                    >进度反馈</span
-                  >
+                  >进度反馈</span>
                   <span
                     v-if="f.accessType === '1'"
                     style="color: rgb(221, 115, 31); margin-right: 20px"
-                    >跟踪询问</span
-                  >
+                  >跟踪询问</span>
                   {{ f.content }}
                 </div>
                 <div class="follow_item_content">
@@ -40,34 +46,32 @@
               </div>
             </div>
           </el-tab-pane>
-        </el-tabs></el-col
-      >
+        </el-tabs></el-col>
       <el-col :span="6">
-        <div class="content_right">
+        <div v-if="projectStatus !== '4'" class="content_right">
           跟踪询问
           <div class="content_text">
             <el-input
+              v-model="followDetail"
               type="textarea"
               :rows="12"
               maxlength="300"
               show-word-limit
               placeholder="请输入内容"
-              v-model="followDetail"
-            >
-            </el-input>
+            />
           </div>
 
           <div class="content_text">
             <el-checkbox-group v-model="noticeType">
-              <el-checkbox v-for="n in noticeTypeOptions" :label="n.code" :key="n.code">{{
+              <el-checkbox v-for="n in noticeTypeOptions" :key="n.code" :label="n.code">{{
                 n.label
               }}</el-checkbox>
             </el-checkbox-group>
           </div>
-          <div class="content_btn" v-if="projectStatus !== '4'">
+          <div v-if="projectStatus !== '4'" class="content_btn">
             <el-button type="success" @click="submitFollow">发出跟踪询问</el-button>
           </div>
-          <div class="content_btn" v-if="projectStatus !== '4'">
+          <div v-if="projectStatus !== '4'" class="content_btn">
             <el-button type="danger" @click="confirmPartner">确认最终合作方</el-button>
           </div>
         </div>
@@ -77,129 +81,136 @@
 </template>
 
 <script>
-import { getToken } from "@/utils/auth";
-import CRUD, { presenter, header, form, crud } from "@crud/crud";
-import { mapGetters } from "vuex";
-import moment from "moment";
-import { getProjectFollow, setProjectFollow, confirmPartnerSubmit } from "@/api/project";
+import { getToken } from '@/utils/auth'
+import CRUD, { presenter, header, form, crud } from '@crud/crud'
+import { mapGetters } from 'vuex'
+import moment from 'moment'
+import { getProjectFollow, setProjectFollow, confirmPartnerSubmit } from '@/api/project'
 export default {
-  name: "ProjectFollow",
+  name: 'ProjectFollow',
   components: {},
 
   created() {
-    console.log(this.$store.getters);
-    if (typeof this.$route.query.partners === "string" || !this.$route.query.partners) {
+    console.log(this.$store.getters)
+    if (typeof this.$route.query.partners === 'string' || !this.$route.query.partners) {
       this.$router.push({
-        path: "create",
-      });
+        path: 'create'
+      })
     } else {
-      this.projectStatus = this.$route.query.status;
-      this.tabOptions = this.$route.query.partners;
-      this.tabTarget = this.tabOptions[0].partner.realName;
-      this.selectId = this.tabOptions[0].partner.id;
-      this.getProjectFollowInfo();
+      this.projectStatus = this.$route.query.status
+      this.tabOptions = this.$route.query.partners
+      this.tabTarget = this.tabOptions[0].partner.realName
+      this.selectId = this.tabOptions[0].partner.id
+      this.getProjectFollowInfo()
     }
-    console.log(this.tabOptions);
+    console.log(this.tabOptions)
   },
   cruds() {
-    return CRUD({ title: "文件", url: "api/files", crudMethod: { ...crudFile } });
+    return CRUD({ title: '文件', url: 'api/files', crudMethod: { ...crudFile }})
   },
   mixins: [crud()],
-  computed: {},
   data() {
     return {
-      projectStatus: "",
-      tabTarget: "",
+      projectStatus: '',
+      tabTarget: '',
       noticeTypeOptions: [
         {
-          label: "邮件通知",
-          code: "1",
+          label: '邮件通知',
+          code: '1'
         },
         {
-          label: "短信通知",
-          code: "2",
-        },
+          label: '短信通知',
+          code: '2'
+        }
       ],
 
       noticeType: [],
       tabOptions: [],
-      followDetail: "",
+      followDetail: '',
       followOptions: [],
-      selectId: "",
-    };
+      selectId: ''
+    }
   },
+  computed: {},
   mounted() {},
   methods: {
+    goback() {
+      window.history.back()
+    },
     test(target) {
-      console.log(target);
-      console.log(this.tabTarget);
-      console.log(this.tabOptions);
+      console.log(target)
+      console.log(this.tabTarget)
+      console.log(this.tabOptions)
       this.tabOptions.forEach((item) => {
         if (item.partner.realName === this.tabTarget) {
-          this.selectId = item.partner.id;
+          this.selectId = item.partner.id
         }
-      });
-      this.getProjectFollowInfo();
+      })
+      this.getProjectFollowInfo()
     },
     async confirmPartnerGoSubmit() {
       const res = confirmPartnerSubmit({
         partnerId: this.selectId,
-        projectId: this.$route.query.projectId,
-      });
+        projectId: this.$route.query.projectId
+      })
       if (res) {
         this.$message({
-          type: "success",
-          message: "操作成功!",
-        });
+          type: 'success',
+          message: '操作成功!'
+        })
         this.$router.push({
-          path: "/projectManage/create/index",
-          query: {},
-        });
+          path: '/projectManage/create/index',
+          query: {}
+        })
       }
     },
     confirmPartner() {
-      this.$confirm("此操作将确认最终合作方，是否确认?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
+      this.$confirm('此操作将确认最终合作方，是否确认?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
         .then(() => {
-          this.confirmPartnerGoSubmit();
+          this.confirmPartnerGoSubmit()
         })
         .catch(() => {
           this.$message({
-            type: "info",
-            message: "已取消操作",
-          });
-        });
+            type: 'info',
+            message: '已取消操作'
+          })
+        })
     },
     async getProjectFollowInfo() {
       const res = await getProjectFollow({
-        sort: ["createTime,desc"],
+        sort: ['createTime,desc'],
         partnerId: this.selectId,
-        projectId: this.$route.query.projectId,
-      });
+        projectId: this.$route.query.projectId
+      })
       if (res) {
-        console.log(res);
-        this.followOptions = res.content;
+        console.log(res)
+        this.followOptions = res.content
       }
     },
 
     async submitFollow() {
+      if (this.followDetail.length < 1) {
+        this.$message.warning('追踪内容不能为空!')
+        return
+      }
       const res = await setProjectFollow({
         content: this.followDetail,
-        dataSource: "string",
+        dataSource: 'string',
 
         noticeType: this.noticeType.toString(),
         partnerId: this.selectId,
-        projectId: this.$route.query.projectId,
-      });
-      this.followDetail = "";
-      this.$message.success("操作成功!");
-      this.getProjectFollowInfo();
-    },
-  },
-};
+        projectId: this.$route.query.projectId
+      })
+      this.followDetail = ''
+      this.$message.success('操作成功!')
+      this.getProjectFollowInfo()
+    }
+  }
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>

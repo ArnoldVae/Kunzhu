@@ -51,7 +51,7 @@ export default {
         download: true,
         reset: true
       },
-      sort: [''],
+      sort: ['createTime,desc'],
       queryOnPresenterCreated: false,
       params: {},
       crudMethod: { ...crudServer }

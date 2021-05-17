@@ -13,7 +13,7 @@
     </div>
     <hr style="border: 0.5px solid #ccc; width: 96%">
     <div class="flooter">
-      <span style="font-size: 16px">相关附件：</span>
+      <span v-if="projectInfo.attachments.length>0" style="font-size: 16px">相关附件：</span>
       <span
         v-for="a in projectInfo.attachments"
         :key="a.projectAttachmentId"
@@ -33,7 +33,9 @@ export default {
 
   data() {
     return {
-      projectInfo: {}
+      projectInfo: {
+        attachments: []
+      }
     }
   },
 

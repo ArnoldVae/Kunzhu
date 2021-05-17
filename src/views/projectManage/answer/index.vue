@@ -17,28 +17,26 @@
           class="problem_content_item_single"
         >
           <el-row>
-            <el-col :span="6"
-              >{{ p.createBy.username }}<br />
-              {{ p.createBy.phone }}<br />
+            <el-col
+              :span="6"
+            >{{ p.createBy.username }}<br>
+              {{ p.createBy.phone }}<br>
               {{ p.createBy.userNo }}
             </el-col>
             <el-col :span="6">
               <div class="questions">
-                {{ p.content }}<br />
-                {{ p.createTime }}<br />
+                {{ p.content }}<br>
+                {{ p.createTime }}<br>
                 <span v-if="p.attachments.length > 0">
                   相关附件：<span
                     v-for="f in p.attachments"
                     :key="f.questionAttachmentId"
                     style="color: #409eff; margin-right: 16px; cursor: pointer"
                     @click="showThisOne(f)"
-                    >{{ f.title }}</span
-                  ></span
-                >
+                  >{{ f.title }}</span></span>
               </div>
               <div v-for="a in p.answers" :key="a.answerId" class="answer">
-                <span style="color: red">{{ a.content }}</span
-                ><br />
+                <span style="color: red">{{ a.content }}</span><br>
                 {{ a.createTime }}
               </div>
             </el-col>
@@ -48,9 +46,10 @@
               <span v-else>待回复</span>
             </el-col>
             <el-col :span="6">
-              <span style="cursor: pointer; color: #1890ff" @click="toAnswer(p)"
-                >官方答疑</span
-              >
+              <span
+                style="cursor: pointer; color: #1890ff"
+                @click="toAnswer(p)"
+              >官方答疑</span>
             </el-col>
           </el-row>
         </div>
@@ -86,15 +85,16 @@
         </el-row>
       </div>
       <div class="link_file">
-        相关附件：<span
-          v-for="f in selectQuerstion.attachments"
-          :key="f.questionAttachmentId"
-          style="color: #409eff; margin-right: 16px; cursor: pointer"
-          @click="showThisOne(f)"
-          >{{ f.title }}</span
-        >
+        <span v-if="selectQuerstion.attachments.length > 0">
+          相关附件：<span
+            v-for="f in selectQuerstion.attachments"
+            :key="f.questionAttachmentId"
+            style="color: #409eff; margin-right: 16px; cursor: pointer"
+            @click="showThisOne(f)"
+          >{{ f.title }}</span>
+        </span>
       </div>
-      <hr style="border: 0.7px solid #ccc; margin-top: 20px" />
+      <hr style="border: 0.7px solid #ccc; margin-top: 20px">
       <div class="dia_alais">
         官方回复
         <el-checkbox v-model="isRepublic" style="float: right">公开回复</el-checkbox>
@@ -119,125 +119,130 @@
 </template>
 
 <script>
-import { searchQuestion, ToProjectAnswer } from "@/api/answer";
-import { getToken } from "@/utils/auth";
-import CRUD, { presenter, header, form, crud } from "@crud/crud";
-import { mapGetters } from "vuex";
-import moment from "moment";
+import { searchQuestion, ToProjectAnswer } from '@/api/answer'
+import { getToken } from '@/utils/auth'
+import CRUD, { presenter, header, form, crud } from '@crud/crud'
+import { mapGetters } from 'vuex'
+import moment from 'moment'
 export default {
-  name: "ProAnswer",
+  name: 'ProAnswer',
   components: {},
 
   created() {},
   cruds() {
-    return CRUD({ title: "文件", url: "api/files", crudMethod: { ...crudFile } });
+    return CRUD({ title: '文件', url: 'api/files', crudMethod: { ...crudFile }})
   },
   mixins: [crud()],
   computed: {
-    ...mapGetters(["imagesUploadApi", "annexUploadApi", "baseApi"]),
+    ...mapGetters(['imagesUploadApi', 'annexUploadApi', 'baseApi'])
   },
   data() {
     return {
       pageSize: 30,
       currentPage: 0,
       partnerTotal: 0,
-      activeName: "all",
-      isReplied: "",
+      activeName: 'all',
+      isReplied: '',
       problems: [],
       ProblemVisible: false,
       isRepublic: true,
-      answerDetail: "",
+      answerDetail: '',
       headers: { Authorization: getToken() },
       flieSelectedList: [],
       uploadData: {
-        uploadType: "3",
+        uploadType: '3'
       },
       selectQuerstion: {
-        createBy: {},
-      },
-    };
+        attachments: [],
+        createBy: {}
+      }
+    }
   },
   mounted() {
-    console.log(this.$route.query.projectInfo);
-    console.log();
+    console.log(this.$route.query.projectInfo)
+    console.log()
     if (this.$route.query.projectInfo.projectId) {
-      this.getProblems();
+      this.getProblems()
     } else {
       this.$router.push({
-        path: "create",
-      });
+        path: 'create'
+      })
     }
   },
   methods: {
     goback() {
-      window.history.back();
+      window.history.back()
     },
     showThisOne(file) {
-      const url = this.getCaption(file.url);
+      const url = this.getCaption(file.url)
 
-      console.log(url);
-      window.open(this.baseApi + "/" + url);
+      console.log(url)
+      window.open(this.baseApi + '/' + url)
     },
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
+      console.log(`每页 ${val} 条`)
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
+      console.log(`当前页: ${val}`)
       getProblems({
-        sort: ["createTime,desc"],
+        sort: ['createTime,desc'],
         projectId: this.$route.query.projectInfo.projectId,
         page: this.currentPage - 1,
         size: this.pageSize,
-        isReplied: this.isReplied,
+        isReplied: this.isReplied
       }).then((res) => {
-        console.log(res);
-        this.problems = res.content;
-        this.partnerTotal = res.totalElements;
-      });
+        console.log(res)
+        this.problems = res.content
+        this.partnerTotal = res.totalElements
+      })
     },
     answerSubmit() {
+      if (this.answerDetail.length < 1) {
+        this.$message.warning('回复内容不能为空!')
+        return
+      }
       const _data = {
         attachments: [],
         content: this.answerDetail,
         isPublic: this.isRepublic,
-        questionId: this.selectQuerstion.questionId,
-      };
+        questionId: this.selectQuerstion.questionId
+      }
 
       ToProjectAnswer(_data).then((res) => {
-        this.$message.success("回复成功!");
+        this.$message.success('回复成功!')
 
-        this.answerDetail = "";
-        this.ProblemVisible = false;
-        this.getProblems();
-      });
+        this.answerDetail = ''
+        this.ProblemVisible = false
+        this.getProblems()
+      })
     },
     async getProblems() {
       const _data = {
-        sort: ["createTime,desc"],
+        sort: ['createTime,desc'],
         projectId: this.$route.query.projectInfo.projectId,
         page: this.currentPage - 1,
         size: this.pageSize,
-        isReplied: this.isReplied,
-      };
-      const res = await searchQuestion(_data);
+        isReplied: this.isReplied
+      }
+      const res = await searchQuestion(_data)
       if (res) {
-        console.log(res);
-        this.problems = res.content;
-        this.partnerTotal = res.totalElements;
+        console.log(res)
+        this.problems = res.content
+        this.partnerTotal = res.totalElements
       }
     },
     handleClick(tab, event) {
-      console.log(tab, event);
-      this.isReplied = this.activeName === "all" ? "" : this.activeName !== "noReplied";
-      this.getProblems();
+      console.log(tab, event)
+      this.isReplied = this.activeName === 'all' ? '' : this.activeName !== 'noReplied'
+      this.getProblems()
     },
     toAnswer(item) {
-      this.selectQuerstion = item;
-      console.log(this.selectQuerstion);
-      this.ProblemVisible = true;
-    },
-  },
-};
+      this.selectQuerstion = item
+      console.log(this.selectQuerstion)
+      this.ProblemVisible = true
+    }
+  }
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>

@@ -68,8 +68,13 @@
       <el-table-column prop="title" label="标题" />
       <el-table-column prop="status" label="状态">
         <template slot-scope="scope">
-          <span v-if="scope.row.status === '0'">未转发</span>
-          <span v-else>已转发</span>
+          <span v-if="scope.row.status === '0'">未提交</span>
+          <span v-if="scope.row.status === '1'">待审核</span>
+          <span v-if="scope.row.status === '2'">已发布</span>
+          <span v-if="scope.row.status === '3'">跟踪中</span>
+          <span v-if="scope.row.status === '4'">已结束</span>
+          <!-- <span v-if="scope.row.status === '0'">未转发</span>
+          <span v-else>已转发</span> -->
         </template>
       </el-table-column>
       <el-table-column prop="createTime" label="创建时间" />
@@ -77,10 +82,22 @@
       <el-table-column label="操作" width="200px" align="center">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" icon="el-icon-view" circle @click="showDetail(scope.row)" />
-          <el-button v-if="scope.row.status === '0'" type="primary" size="mini" icon="el-icon-edit" circle @click="editItem(scope.row)" />
+          <el-button
+            v-if="scope.row.status === '0'"
+            type="primary"
+            size="mini"
+            icon="el-icon-edit"
+            circle
+            @click="editItem(scope.row)"
+          />
           <el-button v-if="scope.row.status === '0'" size="mini" style="float: right" @click="submitProject(scope.row)">
             转发</el-button>
-          <upOperaation v-if="scope.row.status === '0'" style="float: right; margin-left: 3px" :data="scope.row" :permission="permission" />
+          <upOperaation
+            v-if="scope.row.status === '0'"
+            style="float: right; margin-left: 3px"
+            :data="scope.row"
+            :permission="permission"
+          />
 
         </template>
       </el-table-column>
@@ -168,6 +185,22 @@ export default {
         password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
       }
     }
+  },
+  computed: {
+    isNew: function() {
+      return this.crud.status.cu
+    }
+  },
+  filters: {},
+  watch: {
+    isNew: {
+      handler(val) {
+        if (val) {
+          this.$refs.send.initPage()
+        }
+      }
+    }
+
   },
   mounted() {
     console.log(this.crud)
